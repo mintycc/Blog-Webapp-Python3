@@ -11,7 +11,7 @@ def log(sql, args = ()):
     logging.info('SQL: {}'.format(sql))
 
 async def create_pool(loop, **kw):
-    logging.info('create database connection pool ...')
+    logging.info('  create database connection pool ...')
     global __pool
     __pool = await aiomysql.create_pool(
         host = kw.get('host', 'localhost'),
@@ -78,7 +78,7 @@ class Field(object):
     def __init__(self, name, column_type, primary_key, default):
         self.name = name
         self.column_type = column_type
-        self.primary_key = self.primary_key
+        self.primary_key = primary_key
         self.default = default
 
     def __str__(self):
@@ -117,7 +117,7 @@ class ModelMetaclass(type):
         if name == 'Model':
             return type.__new__(cls, name, bases, attrs)
         tableName = attrs.get('__table__', None) or name
-        logging.info('found model: {} (table: {})'.format(name, tableName))
+        logging.info('  found model: {} (table: {})'.format(name, tableName))
         mappings = dict() # column type
         fields = [] # column name
         primarykey = None
@@ -131,21 +131,21 @@ class ModelMetaclass(type):
                     primarykey = k
                 else:
                     fields.append(k)
-            if not primarykey:
-                raise Exception('Primary key not found.')
-            for k in mappings.keys():
-                attrs.pop(k)
-            escaped_fields = list(map(lambda f: '`{}`'.format(f), fields))
-            attrs['__mappings__'] = mappings
-            attrs['__table__'] = tableName
-            attrs['__primary_key__'] = primarykey
-            attrs['__fields__'] = fields
-            # four different operations. `` to avoid keyword conflicts
-            attrs['__select__'] = 'select `{}`, {} from `{}`'.format(primarykey, ', '.join(escaped_fields), tableName)
-            attrs['__insert__'] = 'insert into `{}` ({}, `{}`) values ({})'.format(tableName, ', '.join(escaped_fields), primarykey, create_args_string(len(escaped_fields) + 1))
-            attrs['__update__'] = 'update `{}` set {} where `{}`=?'.format(tableName, ', '.join(map(lambda f:'`{}`=?'.format(mappings.get(f).name or f), fields)), primarykey)
-            attrs['__delete__'] = 'delete from `{}` where `{}`=?'.format(tableName, primarykey)
-            return type.__new__(cls, name, bases, attrs)
+        if not primarykey:
+            raise Exception('Primary key not found.')
+        for k in mappings.keys():
+            attrs.pop(k)
+        escaped_fields = list(map(lambda f: '`{}`'.format(f), fields))
+        attrs['__mappings__'] = mappings
+        attrs['__table__'] = tableName
+        attrs['__primary_key__'] = primarykey
+        attrs['__fields__'] = fields
+        # four different operations. `` to avoid keyword conflicts
+        attrs['__select__'] = 'select `{}`, {} from `{}`'.format(primarykey, ', '.join(escaped_fields), tableName)
+        attrs['__insert__'] = 'insert into `{}` ({}, `{}`) values ({})'.format(tableName, ', '.join(escaped_fields), primarykey, create_args_string(len(escaped_fields) + 1))
+        attrs['__update__'] = 'update `{}` set {} where `{}`=?'.format(tableName, ', '.join(map(lambda f:'`{}`=?'.format(mappings.get(f).name or f), fields)), primarykey)
+        attrs['__delete__'] = 'delete from `{}` where `{}`=?'.format(tableName, primarykey)
+        return type.__new__(cls, name, bases, attrs)
 
 class Model(dict, metaclass = ModelMetaclass):
 

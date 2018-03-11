@@ -11,7 +11,7 @@ grant select, insert, update, delete on awesome.* to 'root'@'localhost' identifi
 create table users (
     `id` varchar(50) not null,
     `email` varchar(50) not null,
-    `passwd` varchar(50) not null,
+    `password` varchar(50) not null,
     `admin` bool not null,
     `name` varchar(50) not null,
     `image` varchar(500) not null,
