@@ -64,11 +64,12 @@ if __name__ == '__main__':
             image = kw.get('image')
         )
         #print(user.id)
-        await user.save()
+        await user.remove()
+        await orm.destroy_pool()
     
     data = dict(
         name='minty', 
-        email='test@test.com', 
+        email='destroy@test.com', 
         password='password', 
         image='about:blank'
     )
