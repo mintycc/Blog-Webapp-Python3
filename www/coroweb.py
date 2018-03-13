@@ -25,7 +25,7 @@ get = functools.partial(Handler_decorator, method = 'GET')
 post = functools.partial(Handler_decorator, method = 'POST')
 
 '''
-link: docs.python.org/3/library/inspect.html#inspect.Parameter
+link: http://docs.python.org/3/library/inspect.html#inspect.Parameter
 
 Use 'inspect' to parse the parameters of view functions:
 
