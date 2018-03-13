@@ -57,14 +57,21 @@ if __name__ == '__main__':
             password = 'password',
             db = 'awesome'
         )
+        '''
         user = User(
             name = kw.get('name'),
             email = kw.get('email'),
             password = kw.get('password'),
             image = kw.get('image')
         )
-        #print(user.id)
-        await user.remove()
+        '''
+        user = User(
+            name = 'Reepom',
+            email = 'reepom@gmail.com',
+            password = 'password',
+            image = 'pic3.jpg'
+        )
+        await user.save()
         await orm.destroy_pool()
     
     data = dict(

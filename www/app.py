@@ -14,6 +14,8 @@ from jinja2 import Environment, FileSystemLoader
 import orm
 from coroweb import add_routes, add_static
 
+from config import configs
+
 # jinja2 document: http://jinja.pocoo.org/docs/2.10/
 def init_jinja2(app, **kw):
     logging.info('init jinja2 ...')
@@ -103,6 +105,7 @@ def datetime_filter(t):
     return u'{}/{}/{}'.format(dt.monty, dt.day, dt.year)
 
 async def init(loop):
+    await orm.create_pool(loop, **configs['db'])
     app = web.Application(loop = loop, middlewares = [logger_middleware, response_middleware])
     init_jinja2(app, filters = dict(datetime = datetime_filter))
     add_routes(app, 'handlers')
