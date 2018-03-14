@@ -4,15 +4,15 @@
         <meta charset="utf-8" />
         {% block meta %}<!-- block meta -->{% endblock %}
         <title>{% block title %} ? {% endblock %} - Awesome Python Webapp</title>
-        <link rel="stylesheet" href="/www/static/css/uikit.min.css">
-        <link rel="stylesheet" href="/www/static/css/uikit.gradient.min.css">
-        <link rel="stylesheet" href="/www/static/css/awesome.css">
-        <script src="/www/static/js/jquery.min.js"></script>
-        <script src="/www/static/js/sha1.min.js"></script>
-        <script src="/www/static/js/uikit.min.js"></script>
-        <script src="/www/static/js/awesome.js"></script>
-        <script src="/www/static/js/sticky.min.js"></script>
-        <script src="/www/static/js/vue.min.js"></script>
+        <link rel="stylesheet" href="../static/css/uikit.min.css">
+        <link rel="stylesheet" href="../static/css/uikit.gradient.min.css">
+        <link rel="stylesheet" href="../static/css/awesome.css">
+        <script src="../static/js/jquery.min.js"></script>
+        <script src="../static/js/sha1.min.js"></script>
+        <script src="../static/js/uikit.min.js"></script>
+        <script src="../static/js/awesome.js"></script>
+        <script src="../static/js/sticky.min.js"></script>
+        <script src="../static/js/vue.min.js"></script>
         {% block beforehead %}<!-- before head -->{% endblock %}
     </head>
     <body>
@@ -75,33 +75,33 @@
                     </ul>
                 </div>
             </div>
-            
-            <div class="uk-container uk-container-center">
-                <div class="uk-grid">
-                    <!-- content -->
-                    {% block content %}
-                    {% endblock %}
-                        <!-- // content -->
-                </div>
-            </div>
-
-            <div class="uk-margin-large-top" style="background-color:#eee; border-top: 1px solid #ccc;">
-                <div class="uk-container uk-container-center uk-text-center">
-                    <div class="uk-panel uk-margin-top uk-margin-bottom">
-                        <p>
-                                <a target="_blank" href="https://weibo.cn/1761608703" class="uk-icon-button uk-icon-weibo"></a>
-                                <a target="_blank" href="https://github.com/mintycc" class="uk-icon-button uk-icon-github"></a>
-                                <a target="_blank" href="https://www.linkedin.com/in/jialiang-cao/" class="uk-icon-button uk-icon-linkedin-square"></a>
-                                <a target="_blank" href="#" class="uk-icon-button uk-icon-twitter"></a>
-                        </p>
-                        <p>Powered by <a href="https://www.liaoxuefeng.com">Awesome Python Webapp</a>. Copyright &copy; 2018.[<a href="/manage/" target="_blank">Manage</a>]</p>
-                        <p><a href="https://www.douban.com/people/65240826/" target="_blank">Douban @Minty</a>. All rights reserved.</p>
-                        <a target="_blank" href="http://www.w3.org/TR/html5/">
-                            <i class="uk-icons-html5" style="font-size: 64px; color: #444;"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
         </nav>
+            
+        <div class="uk-container uk-container-center">
+            <div class="uk-grid">
+                <!-- content -->
+                {% block content %}
+                {% endblock %}
+                    <!-- // content -->
+            </div>
+        </div>
+
+        <div class="uk-margin-large-top" style="background-color:#eee; border-top: 1px solid #ccc;">
+            <div class="uk-container uk-container-center uk-text-center">
+                <div class="uk-panel uk-margin-top uk-margin-bottom">
+                    <p>
+                            <a target="_blank" href="https://weibo.cn/1761608703" class="uk-icon-button uk-icon-weibo"></a>
+                            <a target="_blank" href="https://github.com/mintycc" class="uk-icon-button uk-icon-github"></a>
+                            <a target="_blank" href="https://www.linkedin.com/in/jialiang-cao/" class="uk-icon-button uk-icon-linkedin-square"></a>
+                            <a target="_blank" href="#" class="uk-icon-button uk-icon-twitter"></a>
+                    </p>
+                    <p>Powered by <a href="https://www.liaoxuefeng.com">Awesome Python Webapp</a>. Copyright &copy; 2018.[<a href="/manage/" target="_blank">Manage</a>]</p>
+                    <p><a href="https://www.douban.com/people/65240826/" target="_blank">Douban @Minty</a>. All rights reserved.</p>
+                    <a target="_blank" href="http://www.w3.org/TR/html5/">
+                        <i class="uk-icon-html5" style="font-size: 64px; color: #444;"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
     </body>
 </html>
