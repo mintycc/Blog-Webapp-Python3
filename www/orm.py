@@ -44,6 +44,7 @@ async def select(sql, args, size = None):
         #Obtain cursor. DictCursor: a cursor which returns results as a dictionary. 
         async with conn.cursor(aiomysql.DictCursor) as cur:
             #execute(query, args=None): sql statement and tuple or list of arguments for sql query
+            logging.info(sql.replace('?', '%s'))
             await cur.execute(sql.replace('?', '%s'), args or ())
             if size:
                 rs = await cur.fetchmany(size)
@@ -194,7 +195,7 @@ class Model(dict, metaclass = ModelMetaclass):
             args = []
         orderBy = kw.get('orderBy', None)
         if orderBy:
-            sql.append('orderBy')
+            sql.append('order by')
             sql.append(orderBy)
         limit = kw.get('limit', None)
         # may be problem
@@ -208,6 +209,7 @@ class Model(dict, metaclass = ModelMetaclass):
                 args.extend(limit)
             else:
                 raise ValueError('Invalid limit value: {}'.format(str(limit)))
+        logging.info(' '.join(sql))
         rs = await select(' '.join(sql), args)
         return [cls(**r) for r in rs]
 

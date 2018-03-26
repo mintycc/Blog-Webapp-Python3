@@ -5,6 +5,7 @@ __author__ = 'Minty'
 import asyncio, functools, inspect, logging, os
 from aiohttp import web
 from urllib import parse
+from apis import APIError
 
 logging.basicConfig(level = logging.INFO)
 
@@ -149,8 +150,11 @@ class RequestHandler(object):
                     return web.HTTPBadRequest(text = 'Missing argument: {}'.format(name))
         
         logging.info('call with args: {}'.format(str(kw)))
-        r = await self._func(**kw)
-        return r
+        try:
+            r = await self._func(**kw)
+            return r
+        except APIError as e:
+            return dict(error = e.error, data = e.data, message = e.message)
 
 # register an view function:
 # 1. check if it has path and method
