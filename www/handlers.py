@@ -3,8 +3,54 @@
 __author__ = 'Minty'
 
 from coroweb import get, post
-from model import User, Blog, Comment
-import asyncio, time
+from model import User, Blog, Comment, next_id
+from apis import APIError, APIPermissionError, APIValueError, APIResourceNotFoundError
+from aiohttp import web
+from config import configs
+import asyncio, time, re, hashlib, json, logging
+
+COOKIE_NAME = 'awesession'
+_COOKIE_KEY = configs.session.secret
+
+# re.compile() compile a regular expression pattern into a regular expression object, which doesn't need compile anymore before match() etc.
+_RE_EMAIL = re.compile(r'^[\w\.\-\_]+\@[\w\-\_]+(\.[\w\-\_]+){1,4}$')
+_RE_SHA1  = re.compile(r'^[0-9a-f]{40}$')
+
+def user2cookie(user, max_age):
+    '''
+    Generate cookie str by user.
+    '''
+    # build cookie string by: id-expires-sha1
+    expires = str(int(time.time() + max_age))
+    s = '{}-{}-{}-{}'.format(user.id, user.password, expires, _COOKIE_KEY)
+    L = [user.id, expires, hashlib.sha1(s.encode('utf-8')).hexdigest()]
+    return '-'.join(L)
+
+async def cookie2user(cookie_str):
+    '''
+    Parse cookie and load user if cookie is valid.
+    '''
+    if not cookie_str:
+        return None
+    try:
+        L = cookie_str.split('-')
+        if len(L) != 3:
+            return None
+        uid, expires, sha1 = L
+        if int(expires) < time.time():
+            return None
+        user = await User.find(uid)
+        if user is None:
+            return None
+        s = '{}-{}-{}-{}'.format(uid, user.password, expires, _COOKIE_KEY)
+        if sha1 != hashlib.sha1(s.encode('utf-8')).hexdigest():
+            logging.info('invalid sha1')
+            return None
+        user.password = '******'
+        return user
+    except Exception as e:
+        logging.exception(e)
+        return None
 
 @get('/')
 async def index(request):
@@ -34,9 +80,49 @@ async def index(request):
         'blogs': blogs
     }
 
+@get('/register')
+async def register():
+    return {
+        '__template__': 'register.html'
+    }
+
 @get('/api/users')
 async def api_get_users():
     users = await User.findAll(orderBy = 'created_at desc')
     for u in users:
         u.password = '******'
     return dict(users = users)
+
+@post('/api/users')
+async def api_register_user(*, email, name, password):
+    # string.strip() delete the prefix or suffix blanks
+    if not name or not name.strip():
+        raise APIValueError('name')
+    if not email or not _RE_EMAIL.match(email):
+        raise APIValueError('email')
+    if not password or not _RE_SHA1.match(password):
+        raise APIValueError('password')
+    users = await User.findAll('email=?', [email])
+    if len(users) > 0 :
+        raise APIError('register:failed', 'email', 'Email is already in use.')
+    uid = next_id()
+    sha1_password = '{}:{}'.format(uid, password)
+    user = User(
+        id = uid,
+        name = name.strip(),
+        email = email,
+        password = hashlib.sha1(sha1_password.encode('utf-8')).hexdigest(),
+        image = 'http://www.gravatar.com/avatar/{}?d=mm&s=120'.format(hashlib.md5(email.encode('utf-8')).hexdigest())
+    )
+    await user.save()
+    r = web.Response()
+    r.set_cookie(
+        COOKIE_NAME,
+        user2cookie(user, 86400),
+        max_age = 86400,
+        httponly = True
+    )
+    user.password = '******'
+    r.content_type = 'application/json'
+    r.body = json.dumps(user, ensure_ascii = False).encode('utf-8')
+    return r
