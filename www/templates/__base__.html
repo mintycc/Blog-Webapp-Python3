@@ -41,11 +41,11 @@
                 </ul>
                 <div class="uk-navbar-flip">
                     <ul class="uk-navbar-nav">
-                        {% if user %}
+                        {% if __user__ %}
                             <li class="uk-parent" data-uk-dropdown>
                                 <a href="#0">
                                     <i class="uk-icon-user"></i>
-                                    {{ __user.name__ }}
+                                    {{ __user__.name  }}
                                 </a>
                                 <div class="uk-dropdown ul-dropdown-navbar">
                                     <ul class="ul-nav ul-nav-navbar">

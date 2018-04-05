@@ -86,6 +86,20 @@ async def register():
         '__template__': 'register.html'
     }
 
+@get('/signin')
+async def signin():
+    return {
+        '__template__': 'singin.html'
+    }
+
+@get('/signout')
+async def signout(request):
+    referer = request.headers.get('Referer')
+    r = web.HTTPFound(referer or '/')
+    r.set_cookie(COOKIE_NAME, '-deleted-', max_age=0, httponly=True)
+    logging.info('user signed out.')
+    return r
+
 @get('/api/users')
 async def api_get_users():
     users = await User.findAll(orderBy = 'created_at desc')
@@ -125,4 +139,26 @@ async def api_register_user(*, email, name, password):
     user.password = '******'
     r.content_type = 'application/json'
     r.body = json.dumps(user, ensure_ascii = False).encode('utf-8')
+    return r
+
+@post('/api/authenticate')
+async def authenticate(*, email, password):
+    if not email:
+        raise APIValueError('email', 'Invalid email.')
+    if not password:
+        raise APIValueError('password', 'Invalid password.')
+    users = User.findAll('email=?', email)
+    if len(users) == 0:
+        raise APIValueError('email', 'Email not exist.')
+    user = users[0]
+    # verify password
+    sha1 = hashlib.sha1('{}:{}'.format(user.id.encode('utf-8'), password)).hexdigest()
+    if sha1 != user.password:
+        raise APIValueError('password', 'Wrong password.')
+    # create response
+    r = web.Response()
+    r.set_cookie(COOKIE_NAME, user2cookie(user, 86400), max_age=86400, httponly=True)
+    user.password = '******'
+    r.content_type = 'application/json'
+    r.body = json.dumps(user, ensure_ascii=False).encode('utf-8')
     return r
