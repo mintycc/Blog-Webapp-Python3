@@ -77,7 +77,8 @@ async def index(request):
     ]
     return {
         '__template__': 'blogs.html',
-        'blogs': blogs
+        'blogs': blogs,
+        '__user__': request.__user__
     }
 
 @get('/register')
@@ -89,7 +90,7 @@ async def register():
 @get('/signin')
 async def signin():
     return {
-        '__template__': 'singin.html'
+        '__template__': 'signin.html'
     }
 
 @get('/signout')
@@ -147,13 +148,16 @@ async def authenticate(*, email, password):
         raise APIValueError('email', 'Invalid email.')
     if not password:
         raise APIValueError('password', 'Invalid password.')
-    users = User.findAll('email=?', email)
+    users = await User.findAll('email=?', email)
     if len(users) == 0:
         raise APIValueError('email', 'Email not exist.')
     user = users[0]
     # verify password
-    sha1 = hashlib.sha1('{}:{}'.format(user.id.encode('utf-8'), password)).hexdigest()
-    if sha1 != user.password:
+    sha1 = hashlib.sha1()
+    sha1.update(user.id.encode('utf-8'))
+    sha1.update(b':')
+    sha1.update(password.encode('utf-8'))
+    if sha1.hexdigest() != user.password:
         raise APIValueError('password', 'Wrong password.')
     # create response
     r = web.Response()

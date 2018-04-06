@@ -12,7 +12,7 @@
         <script src="../static/js/awesome.js"></script>
         <script>
             $(function() {
-                var vmAuth = new Vue({
+                var vm = new Vue({
                     el: '#vm',
                     date: {
                         email: '',
@@ -21,13 +21,13 @@
                     methods: {
                         submit: function (event) {
                             event.preventDefault();
-                            var
-                                $form = $('vm'),
-                                email = this.email.trim().toLowerCase(),
-                                data = {
-                                    email: email,
-                                    password: this.password === '' ? '' : CryptoJS.SHA1(email + ':' + this.password).toString()
-                                };
+                            console.log('script processing');
+                            var $form = $('#vm');
+                            var email = this.email.trim().toLowerCase();
+                            var data = {
+                                email: email,
+                                password: this.password === '' ? '' : CryptoJS.SHA1(email + ':' + this.password).toString()
+                            };
                             $form.postJSON('/api/authenticate', data, function(err, result){
                                 if (!err) {
                                     location.assign('/');
@@ -48,7 +48,7 @@
                     </a>
                     <a href="/">Awesome Python Webapp</a>
                 </p>
-                <form id="vm" v-on="submit:submit" class="uk-panel uk-panel-box uk-form">
+                <form id="vm" v-on="submit: submit" class="uk-panel uk-panel-box uk-form">
                     <div class="uk-alert uk-alert-danger uk-hidden"></div>
                     <div class="uk-form-row">
                         <div class="uk-form-icon uk-width-1-1">
@@ -64,7 +64,7 @@
                     </div>
                     <div class="uk-form-row">
                         <button type="submit" class="uk-width-1-1 uk-button uk-button-primary uk-button-large">
-                            <i class="uk-icon-sign-in"></i>Signin
+                            <i class="uk-icon-sign-in"></i> Signin
                         </button>
                     </div>
                 </form>
