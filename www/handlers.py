@@ -6,6 +6,7 @@ from coroweb import get, post
 from model import User, Blog, Comment, next_id
 from apis import APIError, APIPermissionError, APIValueError, APIResourceNotFoundError
 from aiohttp import web
+
 from config import configs
 import asyncio, time, re, hashlib, json, logging
 
@@ -16,11 +17,11 @@ _COOKIE_KEY = configs.session.secret
 _RE_EMAIL = re.compile(r'^[\w\.\-\_]+\@[\w\-\_]+(\.[\w\-\_]+){1,4}$')
 _RE_SHA1  = re.compile(r'^[0-9a-f]{40}$')
 
-async def check_admin(request):
+def check_admin(request):
     if request.__user__ is None or not request.__user__.admin:
         raise APIPermissionError
 
-async def user2cookie(user, max_age):
+def user2cookie(user, max_age):
     '''
     Generate cookie str by user.
     '''
@@ -37,11 +38,15 @@ async def cookie2user(cookie_str):
     if not cookie_str:
         return None
     try:
+        logging.info('enter cookie2user successfully')
+        logging.info(cookie_str)
         L = cookie_str.split('-')
         if len(L) != 3:
+            logging.info('wrong cookie format')
             return None
         uid, expires, sha1 = L
         if int(expires) < time.time():
+            logging.info('cookie expires')
             return None
         user = await User.find(uid)
         if user is None:
@@ -51,6 +56,7 @@ async def cookie2user(cookie_str):
             logging.info('invalid sha1')
             return None
         user.password = '******'
+        logging.info('finish cookie2user successfully')
         return user
     except Exception as e:
         logging.exception(e)
@@ -123,7 +129,7 @@ async def get_blog(id):
         'comments': comments
     }
 
-@get('manage/blogs/create')
+@get('/manage/blogs/create')
 async def manage_create_blog():
     return {
         '__template__': 'manage_blog_edit.html',
@@ -190,6 +196,7 @@ async def authenticate(*, email, password):
     if sha1.hexdigest() != user.password:
         raise APIValueError('password', 'Wrong password.')
     # create response
+    logging.info("****** signin successfully ******")
     r = web.Response()
     r.set_cookie(COOKIE_NAME, user2cookie(user, 86400), max_age=86400, httponly=True)
     user.password = '******'

@@ -15,6 +15,7 @@ import orm
 from coroweb import add_routes, add_static
 
 from config import configs
+
 from handlers import cookie2user, COOKIE_NAME
 
 # jinja2 document: http://jinja.pocoo.org/docs/2.10/
@@ -52,6 +53,7 @@ async def auth_middleware(request, handler):
     request.__user__ = None
     cookie_str = request.cookies.get(COOKIE_NAME)
     if cookie_str:
+        logging.info('cookie exists')
         user = await cookie2user(cookie_str)
         if user:
             logging.info('set current user: {}'.format(user.email))
@@ -89,6 +91,7 @@ async def response_middleware(request, handler):
             return resp
         else:
             # ??
+            r['__user__'] = request.__user__
             resp = web.Response(body = request.app['__template__'].get_template(template).render(**r))
             resp.content_type = 'text/html;charset=utf-8'
             return resp
