@@ -56,6 +56,8 @@ async def auth_middleware(request, handler):
         if user:
             logging.info('set current user: {}'.format(user.email))
             request.__user__ = user
+    if request.path.startswith('/manage/') and (request.__user__ is None or not request.__user__.admin):
+            return web.HTTPFound('/signin')
     return await handler(request)
 
 # middleware to produce response in right format
