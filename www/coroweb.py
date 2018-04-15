@@ -121,7 +121,7 @@ class RequestHandler(object):
 
             elif request.method == 'GET':
                 # the query part in url request after ?
-                qs = request.query_string()
+                qs = request.query_string
                 if qs:
                     kw = dict()
                     for k, v in parse.parse_qs(qs, True).items():

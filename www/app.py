@@ -59,7 +59,7 @@ async def auth_middleware(request, handler):
             logging.info('set current user: {}'.format(user.email))
             request.__user__ = user
     if request.path.startswith('/manage/') and (request.__user__ is None or not request.__user__.admin):
-            return web.HTTPFound('/signin')
+        return web.HTTPFound('/signin')
     return await handler(request)
 
 # middleware to produce response in right format
@@ -90,7 +90,6 @@ async def response_middleware(request, handler):
             resp.content_type = 'application/json;charset=utf-8'
             return resp
         else:
-            # ??
             r['__user__'] = request.__user__
             resp = web.Response(body = request.app['__template__'].get_template(template).render(**r))
             resp.content_type = 'text/html;charset=utf-8'

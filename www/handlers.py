@@ -4,7 +4,8 @@ __author__ = 'Minty'
 
 from coroweb import get, post
 from model import User, Blog, Comment, next_id
-from apis import APIError, APIPermissionError, APIValueError, APIResourceNotFoundError
+
+from apis import Page, APIError, APIPermissionError, APIValueError, APIResourceNotFoundError
 from aiohttp import web
 
 from config import configs
@@ -20,6 +21,16 @@ _RE_SHA1  = re.compile(r'^[0-9a-f]{40}$')
 def check_admin(request):
     if request.__user__ is None or not request.__user__.admin:
         raise APIPermissionError
+
+def get_page_index(page_str):
+    p = 1
+    try:
+        p = int(page_str)
+    except ValueError as e:
+        pass
+    if p < 1:
+        p = 1
+    return p
 
 def user2cookie(user, max_age):
     '''
@@ -129,6 +140,14 @@ async def get_blog(id):
         'comments': comments
     }
 
+@get('/manage/blogs')
+async def manage_blogs(*, page='1'):
+    logging.info('enter handlers')
+    return {
+        '__template__': 'manage_blogs.html',
+        'page_index': get_page_index(page)
+    }
+
 @get('/manage/blogs/create')
 async def manage_create_blog():
     return {
@@ -203,6 +222,16 @@ async def authenticate(*, email, password):
     r.content_type = 'application/json'
     r.body = json.dumps(user, ensure_ascii=False).encode('utf-8')
     return r
+
+@get('/api/blogs')
+async def api_blogs(*, page='1'):
+    page_index = get_page_index(page)
+    num = await Blog.findNumber('count(id)')
+    p = Page(num, page_index)
+    if num == 0:
+        return dict(page=p, blogs=())
+    blogs = await Blog.findAll(orderBy='created_at desc', limit=(p.offset, p.limit))
+    return dict(page=p, blogs=blogs)
 
 @get('/api/blogs/{id}')
 async def api_get_blog(*, id):
