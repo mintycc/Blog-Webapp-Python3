@@ -120,7 +120,7 @@ def datetime_filter(t):
     if delta < 604800:
         return u'{} days ago'.format(delta // 86400)
     dt = datetime.fromtimestamp(t)
-    return u'{}/{}/{}'.format(dt.monty, dt.day, dt.year)
+    return u'{}/{}/{}'.format(dt.month, dt.day, dt.year)
 
 async def init(loop):
     await orm.create_pool(loop, **configs['db'])

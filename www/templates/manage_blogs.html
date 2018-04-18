@@ -19,7 +19,7 @@ function initVM(data) {
             },
             delete_blog: function (blog) {
                 if (confirm('Are you sure to delete"' + blog.name + '"? Deleted blog cannot recover!')) {
-                    postJSON('/api/blogs' + blog.id + '/delete', function (err, r) {
+                    postJSON('/api/blogs/' + blog.id + '/delete', function (err, r) {
                         if (err) {
                             return alert(err.message || err.error || err);
                         }
